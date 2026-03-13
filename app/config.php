@@ -8,7 +8,7 @@ const APP_DATA_DIR = __DIR__ . '/../data';
 
 // Database settings.
 // Supported drivers: sqlite, mysql
-const DB_DRIVER = 'sqlite';
+const DB_DRIVER = 'mysql';
 
 // SQLite file (used when DB_DRIVER=sqlite).
 const SQLITE_DB_FILE = APP_DATA_DIR . '/batstate_rgo.db';
