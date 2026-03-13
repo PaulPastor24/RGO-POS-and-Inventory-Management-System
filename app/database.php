@@ -160,7 +160,7 @@ function initializeSQLiteDatabase(PDO $pdo): void
         )'
     );
 
-    // Backward-compatible migration for existing SQLite databases.
+     
     foreach (['image_path TEXT', 'payment_method TEXT', 'updated_at TEXT'] as $columnSql) {
         try {
             if (str_contains($columnSql, 'image_path')) {
@@ -169,7 +169,7 @@ function initializeSQLiteDatabase(PDO $pdo): void
                 $pdo->exec('ALTER TABLE orders ADD COLUMN ' . $columnSql);
             }
         } catch (Throwable $e) {
-            // Column already exists.
+             
         }
     }
 }

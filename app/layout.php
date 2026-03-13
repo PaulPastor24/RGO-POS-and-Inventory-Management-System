@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/helpers.php';
 
-/* -----------------------------------------------------------------------
- * Helpers
- * --------------------------------------------------------------------- */
+
+
+
 
 function normalizedPath(): string
 {
@@ -15,15 +15,15 @@ function normalizedPath(): string
     return is_string($path) ? $path : '';
 }
 
-/** Roles that get the sidebar dashboard layout instead of the public topbar. */
+ 
 function isSidebarRole(string $role): bool
 {
     return in_array($role, ['admin', 'staff', 'student'], true);
 }
 
-/* -----------------------------------------------------------------------
- * Nav link definitions
- * --------------------------------------------------------------------- */
+
+
+
 
 function navLinksForRole(string $role, int $cartCount): array
 {
@@ -67,7 +67,7 @@ function navLinksForRole(string $role, int $cartCount): array
         ];
     }
 
-    /* Public / guest */
+     
     return [
         ['label' => 'Home',        'href' => '/CAPSTONE/index.php'],
         ['label' => 'Browse Items','href' => '/CAPSTONE/index.php#catalog'],
@@ -79,9 +79,9 @@ function navLinksForRole(string $role, int $cartCount): array
     ];
 }
 
-/* -----------------------------------------------------------------------
- * Render helpers: sidebar layout
- * --------------------------------------------------------------------- */
+
+
+
 
 function renderSidebar(string $role, array $links, string $currentPath, string $userName): void
 {
@@ -90,17 +90,17 @@ function renderSidebar(string $role, array $links, string $currentPath, string $
 
     echo '<aside class="sidebar" id="sidebar">';
 
-    /* Brand */
+     
     echo '<div class="sb-brand">';
     echo '<img class="sb-logo" src="/CAPSTONE/img/BSUlogo.jpg" alt="BSU" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';">';
     echo '<span class="sb-logo-fallback">' . e($initials) . '</span>';
     echo '<div class="sb-brand-text"><strong>BatState-U</strong><small>RGO System</small></div>';
     echo '</div>';
 
-    /* Role badge */
+     
     echo '<div class="sb-role-badge">' . e($roleLabel) . ' PORTAL</div>';
 
-    /* Nav links */
+     
     echo '<nav class="sb-nav">';
     foreach ($links as $link) {
         $href      = (string) ($link['href'] ?? '#');
@@ -119,7 +119,7 @@ function renderSidebar(string $role, array $links, string $currentPath, string $
     }
     echo '</nav>';
 
-    /* User strip */
+     
     echo '<div class="sb-user">';
     echo '<div class="sb-avatar">' . e($initials) . '</div>';
     echo '<div class="sb-user-info"><strong>' . e($userName) . '</strong><small>' . e($roleLabel) . '</small></div>';
@@ -128,9 +128,9 @@ function renderSidebar(string $role, array $links, string $currentPath, string $
     echo '</aside>';
 }
 
-/* -----------------------------------------------------------------------
- * Primary renderHeader / renderFooter
- * --------------------------------------------------------------------- */
+
+
+
 
 function renderHeader(string $title, ?string $menuRole = null): void
 {
@@ -157,7 +157,7 @@ function renderHeader(string $title, ?string $menuRole = null): void
     echo '</head>';
 
     if ($useSidebar) {
-        /* ---- SIDEBAR LAYOUT ---- */
+         
         echo '<body class="has-sidebar">';
         echo '<div class="app-shell">';
 
@@ -165,7 +165,7 @@ function renderHeader(string $title, ?string $menuRole = null): void
 
         echo '<div class="app-body">';
 
-        /* Mobile top bar */
+         
         echo '<header class="mob-topbar">';
         echo '<button class="mob-menu-btn" onclick="document.getElementById(\'sidebar\').classList.toggle(\'open\')" aria-label="Toggle menu">☰</button>';
         echo '<span class="mob-title">' . e($title) . '</span>';
@@ -177,7 +177,7 @@ function renderHeader(string $title, ?string $menuRole = null): void
         if ($flashErr !== null) echo '<div class="alert error">'   . e($flashErr) . '</div>';
 
     } else {
-        /* ---- PUBLIC TOPBAR LAYOUT ---- */
+         
         echo '<body>';
         echo '<div class="page-bg"></div>';
         echo '<header class="topbar">';
@@ -197,9 +197,12 @@ function renderHeader(string $title, ?string $menuRole = null): void
             $href     = (string) ($link['href'] ?? '/CAPSTONE/index.php');
             $label    = (string) ($link['label'] ?? 'Link');
             $linkPath = parse_url($href, PHP_URL_PATH);
-            $active   = is_string($linkPath) && $linkPath !== '' && $currentPath !== '' && $currentPath === $linkPath;
+            $hasFragment = str_contains($href, '#');
+            $fragment = (string) (parse_url($href, PHP_URL_FRAGMENT) ?? '');
+            $active   = !$hasFragment && is_string($linkPath) && $linkPath !== '' && $currentPath !== '' && $currentPath === $linkPath;
             $class    = $active ? ' class="active"' : '';
-            echo '<a' . $class . ' href="' . e($href) . '">' . e($label) . '</a>';
+            $fragmentAttr = $fragment !== '' ? ' data-nav-fragment="' . e($fragment) . '"' : '';
+            echo '<a' . $class . $fragmentAttr . ' href="' . e($href) . '">' . e($label) . '</a>';
         }
         echo '</nav>';
         echo '<div class="header-right" aria-hidden="true">';
@@ -223,12 +226,50 @@ function renderFooter(?string $menuRole = null): void
     $useSidebar = isSidebarRole($role);
 
     if ($useSidebar) {
-        echo '</main>';  /* dash-content */
-        echo '</div>';   /* app-body */
-        echo '</div>';   /* app-shell */
+        echo '</main>';   
+        echo '</div>';    
+        echo '</div>';    
     } else {
         echo '</main>';
         echo '<footer class="footer"><div class="container">© ' . date('Y') . ' BatState-U RGO Ordering System</div></footer>';
+        echo '<script>';
+        echo '(function () {';
+        echo '  var links = document.querySelectorAll(".menu a");';
+        echo '  if (!links.length) return;';
+        echo '  function pathOf(href) {';
+        echo '    try { return new URL(href, window.location.origin).pathname; } catch (e) { return ""; }';
+        echo '  }';
+        echo '  function syncActive() {';
+        echo '    var currentPath = window.location.pathname;';
+        echo '    var hash = (window.location.hash || "").replace(/^#/, "");';
+        echo '    var matched = false;';
+        echo '    links.forEach(function (link) {';
+        echo '      link.classList.remove("active");';
+        echo '      var fragment = link.getAttribute("data-nav-fragment") || "";';
+        echo '      if (hash !== "" && fragment === hash) {';
+        echo '        link.classList.add("active");';
+        echo '        matched = true;';
+        echo '      }';
+        echo '    });';
+        echo '    if (!matched) {';
+        echo '      links.forEach(function (link) {';
+        echo '        var fragment = link.getAttribute("data-nav-fragment") || "";';
+        echo '        if (fragment !== "") return;';
+        echo '        if (pathOf(link.href) === currentPath) {';
+        echo '          link.classList.add("active");';
+        echo '          matched = true;';
+        echo '        }';
+        echo '      });';
+        echo '    }';
+        echo '    if (!matched && currentPath === "/CAPSTONE/index.php") {';
+        echo '      var home = document.querySelector(".menu a[href=\"/CAPSTONE/index.php\"]");';
+        echo '      if (home) home.classList.add("active");';
+        echo '    }';
+        echo '  }';
+        echo '  window.addEventListener("hashchange", syncActive);';
+        echo '  syncActive();';
+        echo '})();';
+        echo '</script>';
     }
 
     echo '</body>';

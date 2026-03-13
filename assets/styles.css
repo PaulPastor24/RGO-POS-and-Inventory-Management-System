@@ -52,8 +52,7 @@ body {
     backdrop-filter: blur(10px);
     background: rgba(255, 255, 255, 0.96);
     border-bottom: 1px solid var(--line);
-    position: sticky;
-    top: 0;
+    position: relative;
     z-index: 20;
     box-shadow: 0 4px 12px rgba(24, 34, 52, 0.07);
 }
@@ -331,6 +330,13 @@ body {
     padding: 0;
 }
 
+.section.login-shell {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+}
+
 .section {
     margin: 0 auto 1.2rem;
     width: 100%;
@@ -496,6 +502,12 @@ button:hover,
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
+}
+
+.login-shell .login-grid {
+    grid-template-columns: 1fr;
+    width: min(100%, 560px);
+    margin: 0 auto;
 }
 
 .login-panel {
@@ -725,10 +737,7 @@ button:hover,
     }
 }
 
-/* =======================================================================
-   SIDEBAR DASHBOARD LAYOUT
-   Used for admin / staff / student authenticated views
-   ======================================================================= */
+
 
 :root {
     --sb-width: 240px;
@@ -747,13 +756,13 @@ body.has-sidebar {
     overflow-x: hidden;
 }
 
-/* Shell: sidebar + body side by side */
+
 .app-shell {
     display: flex;
     min-height: 100vh;
 }
 
-/* ---- Sidebar ---- */
+
 .sidebar {
     width: var(--sb-width);
     min-height: 100vh;
@@ -771,7 +780,7 @@ body.has-sidebar {
     scrollbar-color: rgba(255,255,255,0.1) transparent;
 }
 
-/* Brand block */
+
 .sb-brand {
     display: flex;
     align-items: center;
@@ -826,7 +835,7 @@ body.has-sidebar {
     letter-spacing: 0.08em;
 }
 
-/* Role badge */
+
 .sb-role-badge {
     margin: 0.65rem 1rem 0.3rem;
     font-size: 0.6rem;
@@ -841,7 +850,7 @@ body.has-sidebar {
     display: inline-block;
 }
 
-/* Nav links */
+
 .sb-nav {
     flex: 1;
     padding: 0.6rem 0;
@@ -897,7 +906,7 @@ body.has-sidebar {
     text-align: center;
 }
 
-/* User strip at bottom */
+
 .sb-user {
     display: flex;
     align-items: center;
@@ -942,7 +951,7 @@ body.has-sidebar {
     letter-spacing: 0.06em;
 }
 
-/* ---- App body (right of sidebar) ---- */
+
 .app-body {
     margin-left: var(--sb-width);
     flex: 1;
@@ -952,7 +961,7 @@ body.has-sidebar {
     min-width: 0;
 }
 
-/* Mobile topbar (hidden on desktop) */
+
 .mob-topbar {
     display: none;
     align-items: center;
@@ -992,7 +1001,7 @@ body.has-sidebar {
     text-overflow: ellipsis;
 }
 
-/* ---- Dashboard main content area ---- */
+
 .dash-content {
     flex: 1;
     padding: 1.6rem 1.8rem 2rem;
@@ -1000,7 +1009,7 @@ body.has-sidebar {
     width: 100%;
 }
 
-/* ---- Dashboard page title ---- */
+
 .dash-title {
     font-family: 'Cinzel', serif;
     font-size: clamp(1.2rem, 2.5vw, 1.6rem);
@@ -1014,7 +1023,7 @@ body.has-sidebar {
     margin: 0 0 1.4rem;
 }
 
-/* ---- Stat cards row ---- */
+
 .stat-row {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -1070,7 +1079,7 @@ body.has-sidebar {
     color: var(--muted);
 }
 
-/* ---- Dashboard panel (section replacement) ---- */
+
 .dash-panel {
     background: #fff;
     border: 1px solid var(--line);
@@ -1098,7 +1107,7 @@ body.has-sidebar {
     margin: 0;
 }
 
-/* Also style .section nicely in dash context */
+
 .has-sidebar .section {
     border-radius: 14px;
     padding: 1.25rem 1.35rem;
@@ -1110,12 +1119,12 @@ body.has-sidebar {
     letter-spacing: 0.05em;
 }
 
-/* Alert in sidebar layout */
+
 .has-sidebar .alert {
     margin-bottom: 1rem;
 }
 
-/* Status badge pills */
+
 .badge {
     display: inline-block;
     padding: 0.22em 0.68em;
@@ -1131,7 +1140,7 @@ body.has-sidebar {
 .badge-completed  { background: #d4edda; color: #155724; }
 .badge-cancelled  { background: #f8d7da; color: #721c24; }
 
-/* ---- Mobile responsive for sidebar ---- */
+
 @media (max-width: 900px) {
     .app-body {
         margin-left: 0;
