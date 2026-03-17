@@ -3,11 +3,26 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/app/bootstrap.php';
+require_once __DIR__ . '/admin/auth.php';
 require_once __DIR__ . '/app/layout.php';
+
+requireLogin();
 
 $cart = getCart();
 $products = [];
 $total = 0.0;
+
+// Prefill checkout details from logged-in user and last order
+$user = currentUser();
+$prefillName = (string) ($user['name'] ?? '');
+$prefillStudentNo = '';
+
+if ($prefillName !== '') {
+    $stmt = db()->prepare('SELECT student_no FROM orders WHERE user_email = :email ORDER BY id DESC LIMIT 1');
+    $stmt->execute([':email' => (string) ($user['email'] ?? '')]);
+    $prefillStudentNo = (string) $stmt->fetchColumn();
+}
+
 
 if (!empty($cart)) {
     $ids = array_keys($cart);
@@ -89,19 +104,16 @@ renderHeader('Your Cart');
             <div class="form-grid">
                 <div>
                     <label for="full_name">Full Name</label>
-                    <input id="full_name" name="full_name" required>
+                    <input id="full_name" name="full_name" required value="<?php echo e($prefillName); ?>">
                 </div>
                 <div>
                     <label for="student_no">Student Number</label>
-                    <input id="student_no" name="student_no" required>
+                    <input id="student_no" name="student_no" required value="<?php echo e($prefillStudentNo); ?>">
                 </div>
                 <div>
                     <label for="campus">Campus</label>
                     <select id="campus" name="campus" required>
-                        <option value="">Select campus</option>
-                        <?php global $campuses; foreach ($campuses as $campus): ?>
-                            <option value="<?php echo e($campus); ?>"><?php echo e($campus); ?></option>
-                        <?php endforeach; ?>
+                        <option value="Lipa" selected>Lipa</option>
                     </select>
                 </div>
                 <div>

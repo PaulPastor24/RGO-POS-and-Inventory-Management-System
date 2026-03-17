@@ -46,6 +46,7 @@ function initializeDatabase(PDO $pdo): void
 
     ensureCatalogSeed($pdo);
     ensureInventoryRows($pdo);
+    ensureUsersSeeded($pdo);
 }
 
 function isMySQL(PDO $pdo): bool
@@ -78,6 +79,7 @@ function initializeSQLiteDatabase(PDO $pdo): void
             status TEXT NOT NULL DEFAULT "Pending",
             total_amount REAL NOT NULL,
             payment_method TEXT,
+            user_email TEXT,
             created_at TEXT NOT NULL,
             updated_at TEXT
         )'
@@ -160,6 +162,20 @@ function initializeSQLiteDatabase(PDO $pdo): void
         )'
     );
 
+    $pdo->exec(
+        'CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT NOT NULL UNIQUE,
+            name TEXT NOT NULL,
+            role TEXT NOT NULL,
+            password_hash TEXT NOT NULL,
+            is_active INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL,
+            last_login_at TEXT,
+            last_login_ip TEXT
+        )'
+    );
+
      
     foreach (['image_path TEXT', 'payment_method TEXT', 'updated_at TEXT'] as $columnSql) {
         try {
@@ -199,6 +215,7 @@ function initializeMySQLDatabase(PDO $pdo): void
             status VARCHAR(60) NOT NULL DEFAULT "Pending",
             total_amount DECIMAL(12,2) NOT NULL,
             payment_method VARCHAR(60) NULL,
+            user_email VARCHAR(255) NULL,
             created_at DATETIME NOT NULL,
             updated_at DATETIME NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'
@@ -280,6 +297,79 @@ function initializeMySQLDatabase(PDO $pdo): void
             created_at DATETIME NOT NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'
     );
+
+    $pdo->exec(
+        'CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            email VARCHAR(255) NOT NULL UNIQUE,
+            name VARCHAR(255) NOT NULL,
+            role VARCHAR(60) NOT NULL,
+            password_hash VARCHAR(255) NOT NULL,
+            is_active TINYINT(1) NOT NULL DEFAULT 1,
+            created_at DATETIME NOT NULL,
+            last_login_at DATETIME NULL,
+            last_login_ip VARCHAR(45) NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'
+    );
+
+    $pdo->exec(
+        'CREATE TABLE IF NOT EXISTS campuses (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(120) NOT NULL UNIQUE,
+            is_active TINYINT(1) NOT NULL DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'
+    );
+
+    // Ensure default campus exists
+    try {
+        $pdo->exec("INSERT IGNORE INTO campuses (name, is_active) VALUES ('Lipa', 1)");
+    } catch (Throwable $e) {
+        // Campus may already exist
+    }
+
+    // Add constraints and indexes
+    try {
+        $pdo->exec('ALTER TABLE inventory ADD CONSTRAINT chk_inventory_quantity_non_negative CHECK (quantity_on_hand >= 0)');
+    } catch (Throwable $e) {
+        // Constraint may already exist
+    }
+
+    try {
+        $pdo->exec('ALTER TABLE orders ADD CONSTRAINT fk_orders_users FOREIGN KEY (user_email) REFERENCES users(email) ON DELETE SET NULL');
+    } catch (Throwable $e) {
+        // Foreign key may already exist
+    }
+
+    try {
+        $pdo->exec('ALTER TABLE orders ADD CONSTRAINT fk_orders_campuses FOREIGN KEY (campus) REFERENCES campuses(name) ON DELETE RESTRICT');
+    } catch (Throwable $e) {
+        // Foreign key may already exist
+    }
+
+    // Add performance indexes
+    $indexes = [
+        'ALTER TABLE orders ADD INDEX idx_orders_user_email (user_email)',
+        'ALTER TABLE orders ADD INDEX idx_orders_student_no (student_no)',
+        'ALTER TABLE orders ADD INDEX idx_orders_order_code (order_code)',
+        'ALTER TABLE orders ADD INDEX idx_orders_status (status)',
+        'ALTER TABLE orders ADD INDEX idx_orders_created_at (created_at)',
+        'ALTER TABLE order_items ADD INDEX idx_order_items_order_id (order_id)',
+        'ALTER TABLE order_items ADD INDEX idx_order_items_product_id (product_id)',
+        'ALTER TABLE inventory ADD INDEX idx_inventory_product_id (product_id)',
+        'ALTER TABLE stock_movements ADD INDEX idx_stock_movements_product_id (product_id)',
+        'ALTER TABLE stock_movements ADD INDEX idx_stock_movements_created_at (created_at)',
+        'ALTER TABLE users ADD INDEX idx_users_email (email)',
+        'ALTER TABLE users ADD INDEX idx_users_role (role)',
+    ];
+
+    foreach ($indexes as $indexSql) {
+        try {
+            $pdo->exec($indexSql);
+        } catch (Throwable $e) {
+            // Index may already exist
+        }
+    }
 }
 
 function ensureCatalogSeed(PDO $pdo): void
@@ -348,6 +438,45 @@ function ensureInventoryRows(PDO $pdo): void
             ':reorder_point' => 10,
             ':reorder_quantity' => 50,
             ':last_counted_at' => date('Y-m-d H:i:s'),
+        ]);
+    }
+}
+
+function ensureUsersSeeded(PDO $pdo): void
+{
+    $hardcodedUsers = [
+        [
+            'email' => 'admin@g.batstate-u.edu.ph',
+            'name' => 'RGO Administrator',
+            'role' => 'admin',
+            'password_hash' => '$2y$10$juVUYCgHxbcUdqeBNuHfWu5fYs.4QsUZD1Yb8Ry72XPBF6Gk2Ue3O',
+        ],
+        [
+            'email' => 'staff@g.batstate-u.edu.ph',
+            'name' => 'RGO Staff',
+            'role' => 'staff',
+            'password_hash' => '$2y$10$vCbFRAWJyVeIST4Of78FN.t3R90nWloZog/iYKf71q/1qVh2qPKI.',
+        ],
+    ];
+
+    foreach ($hardcodedUsers as $user) {
+        $check = $pdo->prepare('SELECT 1 FROM users WHERE email = :email');
+        $check->execute([':email' => $user['email']]);
+        
+        if ($check->fetchColumn()) {
+            continue;
+        }
+
+        $stmt = $pdo->prepare(
+            'INSERT INTO users (email, name, role, password_hash, is_active, created_at)
+             VALUES (:email, :name, :role, :password_hash, 1, :created_at)'
+        );
+        $stmt->execute([
+            ':email' => $user['email'],
+            ':name' => $user['name'],
+            ':role' => $user['role'],
+            ':password_hash' => $user['password_hash'],
+            ':created_at' => date('Y-m-d H:i:s'),
         ]);
     }
 }

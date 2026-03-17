@@ -3,9 +3,23 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../app/bootstrap.php';
+require_once __DIR__ . '/../admin/auth.php';
 require_once __DIR__ . '/../app/layout.php';
 
-$orders = db()->query("SELECT order_code, status, total_amount, updated_at FROM orders WHERE status IN ('Completed', 'Cancelled') ORDER BY id DESC")->fetchAll();
+requireStudent();
+
+$user = currentUser();
+$userEmail = (string) ($user['email'] ?? '');
+
+$stmt = db()->prepare(
+    "SELECT order_code, status, total_amount, updated_at 
+     FROM orders 
+     WHERE user_email = :email 
+     AND status IN ('Completed', 'Cancelled') 
+     ORDER BY id DESC"
+);
+$stmt->execute([':email' => $userEmail]);
+$orders = $stmt->fetchAll();
 
 renderHeader('Order History', 'student');
 ?>

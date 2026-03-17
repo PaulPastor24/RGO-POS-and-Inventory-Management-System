@@ -29,6 +29,36 @@ $lowStock = $pdo->query("
 
 $productCount = $pdo->query("SELECT COUNT(*) FROM products WHERE is_active = 1")->fetchColumn();
 
+$statusData = $pdo->query("SELECT status, COUNT(*) AS cnt FROM orders GROUP BY status")->fetchAll();
+
+$today = new DateTimeImmutable('today');
+$start = $today->modify('-6 days')->format('Y-m-d');
+$end = $today->modify('+1 day')->format('Y-m-d');
+$salesTrendStmt = $pdo->prepare(
+    "SELECT DATE(created_at) AS day, COUNT(*) AS cnt, SUM(total_amount) AS sales
+     FROM orders
+     WHERE DATE(created_at) BETWEEN :start AND :end
+     GROUP BY DATE(created_at)
+     ORDER BY DATE(created_at) ASC"
+);
+$salesTrendStmt->execute([':start' => $start, ':end' => $end]);
+$salesTrend = $salesTrendStmt->fetchAll();
+
+$trendLabels = [];
+$trendSales = [];
+for ($d = clone $today->modify('-6 days'); $d <= $today; $d = $d->modify('+1 day')) {
+    $label = $d->format('M j');
+    $trendLabels[] = $label;
+    $trendSales[$d->format('Y-m-d')] = 0.0;
+}
+foreach ($salesTrend as $row) {
+    $day = (string) ($row['day'] ?? '');
+    if (isset($trendSales[$day])) {
+        $trendSales[$day] = (float) ($row['sales'] ?? 0);
+    }
+}
+$trendData = array_values($trendSales);
+
 $recentOrders = $pdo->query("
     SELECT order_code, full_name, total_amount, status, created_at
     FROM orders ORDER BY id DESC LIMIT 8
@@ -38,6 +68,14 @@ renderHeader('Admin Dashboard');
 ?>
 <h1 class="dash-title">Dashboard</h1>
 <p class="dash-subtitle">Welcome back, <?php echo e((string)($user['name'] ?? 'Admin')); ?>. Here's your system overview.</p>
+
+<div class="dash-actions">
+    <a class="btn" href="/CAPSTONE/admin/orders.php">View Orders</a>
+    <a class="btn" href="/CAPSTONE/admin/products.php">Manage Products</a>
+    <a class="btn" href="/CAPSTONE/admin/inventory.php">Inventory</a>
+    <a class="btn" href="/CAPSTONE/admin/reports.php">Reports</a>
+    <a class="btn" href="/CAPSTONE/admin/users.php">Users</a>
+</div>
 
 <div class="stat-row">
     <div class="stat-card accent-red">
@@ -69,6 +107,22 @@ renderHeader('Admin Dashboard');
         <span class="stat-label">Gross Sales</span>
         <span class="stat-value" style="font-size:1.1rem"><?php echo formatPeso((float)($stats['gross_sales'] ?? 0)); ?></span>
         <span class="stat-sub">All time</span>
+    </div>
+</div>
+
+<div class="dash-panel">
+    <div class="dash-panel-header">
+        <h2 class="dash-panel-title">Orders Overview</h2>
+    </div>
+    <div class="grid grid-2">
+        <div class="chart-card">
+            <h3>Order Status Distribution</h3>
+            <canvas id="orderStatusChart" width="400" height="250"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>Sales (Last 7 Days)</h3>
+            <canvas id="salesTrendChart" width="400" height="250"></canvas>
+        </div>
     </div>
 </div>
 
@@ -107,4 +161,61 @@ renderHeader('Admin Dashboard');
     </table>
     <?php endif; ?>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+    const statusLabels = <?php echo json_encode(array_column($statusData, 'status')); ?>;
+    const statusCounts = <?php echo json_encode(array_map('intval', array_column($statusData, 'cnt'))); ?>;
+
+    const ctxStatus = document.getElementById('orderStatusChart');
+    if (ctxStatus) {
+        new Chart(ctxStatus, {
+            type: 'doughnut',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusCounts,
+                    backgroundColor: ['#f59e0b', '#2563eb', '#22c55e', '#14b8a6', '#ef4444'],
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                plugins: {legend: {position: 'bottom'}},
+                maintainAspectRatio: false,
+            }
+        });
+    }
+
+    const trendLabels = <?php echo json_encode($trendLabels); ?>;
+    const trendData = <?php echo json_encode($trendData); ?>;
+
+    const ctxTrend = document.getElementById('salesTrendChart');
+    if (ctxTrend) {
+        new Chart(ctxTrend, {
+            type: 'line',
+            data: {
+                labels: trendLabels,
+                datasets: [{
+                    label: 'Sales',
+                    data: trendData,
+                    borderColor: '#7b1113',
+                    backgroundColor: 'rgba(123, 17, 19, 0.18)',
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 3,
+                }]
+            },
+            options: {
+                plugins: {legend: {display: false}},
+                scales: {
+                    y: {ticks: {callback: (v) => '₱' + v.toFixed(0)} }
+                },
+                maintainAspectRatio: false,
+            }
+        });
+    }
+})();
+</script>
+
 <?php renderFooter();

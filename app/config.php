@@ -6,6 +6,15 @@ const APP_NAME = 'BatState-U RGO Ordering System';
 const APP_TIMEZONE = 'Asia/Manila';
 const APP_DATA_DIR = __DIR__ . '/../data';
 
+// School domain for email validation
+const SCHOOL_DOMAIN = '@g.batstate-u.edu.ph';
+
+// Allowed user roles
+const ALLOWED_ROLES = ['student', 'admin', 'staff'];
+
+// Default role for new registrations
+const DEFAULT_ROLE = 'student';
+
  
  
 const DB_DRIVER = 'mysql';

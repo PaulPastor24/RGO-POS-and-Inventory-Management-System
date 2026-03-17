@@ -3,8 +3,13 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/app/bootstrap.php';
+require_once __DIR__ . '/admin/auth.php';
 require_once __DIR__ . '/app/layout.php';
 
+requireLogin();
+
+$user = currentUser();
+$userEmail = (string) ($user['email'] ?? '');
 $order = null;
 $items = [];
 
