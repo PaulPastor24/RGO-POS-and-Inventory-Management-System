@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../app/bootstrap.php';
+require_once __DIR__ . '/auth.php';
 
-unset($_SESSION['auth_user'], $_SESSION['admin_logged_in']);
-flash('success', 'Session ended.');
-redirect('/CAPSTONE/admin/login.php');
+flash('success', 'You have been signed out.');
+logout();

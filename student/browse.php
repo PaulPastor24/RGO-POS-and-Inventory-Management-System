@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../app/bootstrap.php';
+require_once __DIR__ . '/../admin/auth.php';
 require_once __DIR__ . '/../app/layout.php';
+
+requireStudent();
 
 $products = db()->query('SELECT id, name, category, price, image_path FROM products WHERE is_active = 1 ORDER BY category, name')->fetchAll();
 

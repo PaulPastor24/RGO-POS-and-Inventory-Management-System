@@ -29,41 +29,41 @@ function navLinksForRole(string $role, int $cartCount): array
 {
     if ($role === 'admin') {
         return [
-            ['icon' => '🏠', 'label' => 'Dashboard',        'href' => '/CAPSTONE/admin/dashboard.php'],
-            ['icon' => '🛒', 'label' => 'POS',               'href' => '/CAPSTONE/admin/pos_transactions.php'],
-            ['icon' => '📋', 'label' => 'Orders',            'href' => '/CAPSTONE/admin/orders.php'],
-            ['icon' => '📦', 'label' => 'Products',          'href' => '/CAPSTONE/admin/products.php'],
-            ['icon' => '🗄️', 'label' => 'Inventory',         'href' => '/CAPSTONE/admin/inventory.php'],
-            ['icon' => '📊', 'label' => 'Reports',           'href' => '/CAPSTONE/admin/reports.php'],
-            ['icon' => '👥', 'label' => 'Users',             'href' => '/CAPSTONE/admin/users.php'],
-            ['icon' => '📜', 'label' => 'System Logs',       'href' => '/CAPSTONE/admin/logs.php'],
-            ['icon' => '⚙️', 'label' => 'Settings',          'href' => '/CAPSTONE/admin/settings.php'],
-            ['icon' => '🚪', 'label' => 'Logout',            'href' => '/CAPSTONE/admin/logout.php'],
+            ['label' => 'Dashboard',        'href' => '/CAPSTONE/admin/dashboard.php'],
+            ['label' => 'POS',               'href' => '/CAPSTONE/admin/pos_transactions.php'],
+            ['label' => 'Orders',            'href' => '/CAPSTONE/admin/orders.php'],
+            ['label' => 'Products',          'href' => '/CAPSTONE/admin/products.php'],
+            ['label' => 'Inventory',         'href' => '/CAPSTONE/admin/inventory.php'],
+            ['label' => 'Reports',           'href' => '/CAPSTONE/admin/reports.php'],
+            ['label' => 'Users',             'href' => '/CAPSTONE/admin/users.php'],
+            ['label' => 'System Logs',       'href' => '/CAPSTONE/admin/logs.php'],
+            ['label' => 'Settings',          'href' => '/CAPSTONE/admin/settings.php'],
+            ['label' => 'Logout',            'href' => '/CAPSTONE/admin/logout.php'],
         ];
     }
 
     if ($role === 'staff') {
         return [
-            ['icon' => '🏠', 'label' => 'Dashboard',    'href' => '/CAPSTONE/staff/dashboard.php'],
-            ['icon' => '🛒', 'label' => 'POS',           'href' => '/CAPSTONE/staff/pos.php'],
-            ['icon' => '📋', 'label' => 'Orders',        'href' => '/CAPSTONE/staff/orders.php'],
-            ['icon' => '🗄️', 'label' => 'Inventory',     'href' => '/CAPSTONE/admin/inventory.php'],
-            ['icon' => '📦', 'label' => 'Order Pickup',  'href' => '/CAPSTONE/staff/pickup.php'],
-            ['icon' => '📊', 'label' => 'Reports',       'href' => '/CAPSTONE/staff/reports.php'],
-            ['icon' => '👤', 'label' => 'Profile',       'href' => '/CAPSTONE/staff/profile.php'],
-            ['icon' => '🚪', 'label' => 'Logout',        'href' => '/CAPSTONE/admin/logout.php'],
+            ['label' => 'Dashboard',    'href' => '/CAPSTONE/staff/dashboard.php'],
+            ['label' => 'POS',           'href' => '/CAPSTONE/staff/pos.php'],
+            ['label' => 'Orders',        'href' => '/CAPSTONE/staff/orders.php'],
+            ['label' => 'Inventory',     'href' => '/CAPSTONE/admin/inventory.php'],
+            ['label' => 'Order Pickup',  'href' => '/CAPSTONE/staff/pickup.php'],
+            ['label' => 'Reports',       'href' => '/CAPSTONE/staff/reports.php'],
+            ['label' => 'Profile',       'href' => '/CAPSTONE/staff/profile.php'],
+            ['label' => 'Logout',        'href' => '/CAPSTONE/admin/logout.php'],
         ];
     }
 
     if ($role === 'student') {
         return [
-            ['icon' => '🏠', 'label' => 'Dashboard',      'href' => '/CAPSTONE/student/dashboard.php'],
-            ['icon' => '🛍️', 'label' => 'Browse Items',   'href' => '/CAPSTONE/student/browse.php'],
-            ['icon' => '🛒', 'label' => 'Cart (' . $cartCount . ')', 'href' => '/CAPSTONE/cart.php'],
-            ['icon' => '📋', 'label' => 'My Orders',      'href' => '/CAPSTONE/student/my_orders.php'],
-            ['icon' => '📍', 'label' => 'Track Order',    'href' => '/CAPSTONE/track.php'],
-            ['icon' => '👤', 'label' => 'Profile',        'href' => '/CAPSTONE/student/profile.php'],
-            ['icon' => '🚪', 'label' => 'Logout',         'href' => '/CAPSTONE/admin/logout.php'],
+            ['label' => 'Dashboard',      'href' => '/CAPSTONE/student/dashboard.php'],
+            ['label' => 'Browse Items',   'href' => '/CAPSTONE/student/browse.php'],
+            ['label' => 'Cart (' . $cartCount . ')', 'href' => '/CAPSTONE/cart.php'],
+            ['label' => 'My Orders',      'href' => '/CAPSTONE/student/my_orders.php'],
+            ['label' => 'Track Order',    'href' => '/CAPSTONE/track.php'],
+            ['label' => 'Profile',        'href' => '/CAPSTONE/student/profile.php'],
+            ['label' => 'Logout',         'href' => '/CAPSTONE/admin/logout.php'],
         ];
     }
 
