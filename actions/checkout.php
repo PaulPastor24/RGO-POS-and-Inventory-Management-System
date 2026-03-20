@@ -3,12 +3,17 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../app/bootstrap.php';
+require_once __DIR__ . '/../admin/auth.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirect('/CAPSTONE/cart.php');
 }
 
+requireLogin();
 requireCsrfToken('/CAPSTONE/cart.php');
+
+$user = currentUser();
+$userEmail = (string) ($user['email'] ?? '');
 
 $fullName = trim((string) ($_POST['full_name'] ?? ''));
 $studentNo = trim((string) ($_POST['student_no'] ?? ''));
@@ -89,8 +94,8 @@ $pdo->beginTransaction();
 
 try {
     $orderStmt = $pdo->prepare(
-        'INSERT INTO orders (order_code, full_name, student_no, campus, contact_no, notes, total_amount, created_at)
-         VALUES (:order_code, :full_name, :student_no, :campus, :contact_no, :notes, :total_amount, :created_at)'
+        'INSERT INTO orders (order_code, full_name, student_no, campus, contact_no, notes, total_amount, user_email, created_at)
+         VALUES (:order_code, :full_name, :student_no, :campus, :contact_no, :notes, :total_amount, :user_email, :created_at)'
     );
 
     $orderStmt->execute([
@@ -101,6 +106,7 @@ try {
         ':contact_no' => $contactNo,
         ':notes' => $notes,
         ':total_amount' => $total,
+        ':user_email' => $userEmail,
         ':created_at' => $createdAt,
     ]);
 
