@@ -117,11 +117,15 @@ renderHeader('Admin Dashboard');
     <div class="grid grid-2">
         <div class="chart-card">
             <h3>Order Status Distribution</h3>
-            <canvas id="orderStatusChart" width="400" height="250"></canvas>
+            <div class="chart-wrap">
+                <canvas id="orderStatusChart"></canvas>
+            </div>
         </div>
         <div class="chart-card">
             <h3>Sales (Last 7 Days)</h3>
-            <canvas id="salesTrendChart" width="400" height="250"></canvas>
+            <div class="chart-wrap">
+                <canvas id="salesTrendChart"></canvas>
+            </div>
         </div>
     </div>
 </div>

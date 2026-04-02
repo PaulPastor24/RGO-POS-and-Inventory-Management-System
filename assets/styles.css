@@ -1023,6 +1023,13 @@ body.has-sidebar {
     margin: 0 0 1.4rem;
 }
 
+.dash-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-bottom: 1.2rem;
+}
+
 
 .stat-row {
     display: grid;
@@ -1107,6 +1114,116 @@ body.has-sidebar {
     margin: 0;
 }
 
+.grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.chart-card {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fff;
+    padding: 0.95rem;
+}
+
+.chart-card h3 {
+    margin: 0 0 0.75rem;
+    font-size: 0.86rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--secondary);
+}
+
+.chart-wrap {
+    position: relative;
+    height: 260px;
+    max-height: 260px;
+}
+
+.chart-wrap canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.inventory-summary-row {
+    margin-bottom: 1.1rem;
+}
+
+.inventory-table-wrap {
+    overflow-x: auto;
+}
+
+.inventory-table th,
+.inventory-table td {
+    vertical-align: middle;
+}
+
+.inv-product-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-width: 220px;
+}
+
+.inv-thumb {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    max-width: 48px !important;
+    max-height: 48px !important;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #d6deea;
+    background: #fff;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.inv-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 118px;
+    padding: 0.28rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+.inv-status.status-ok {
+    background: #dff4e5;
+    color: #146335;
+}
+
+.inv-status.status-low {
+    background: #fff3d6;
+    color: #7a4f00;
+}
+
+.inv-status.status-critical {
+    background: #fde1e3;
+    color: #8d141a;
+}
+
+.inv-adjust-form {
+    display: grid;
+    gap: 0.45rem;
+    min-width: 180px;
+}
+
+.inv-adjust-form input,
+.inv-adjust-form button {
+    width: 100%;
+}
+
+.inv-adjust-form button {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    font-size: 0.82rem;
+}
+
 
 .has-sidebar .section {
     border-radius: 14px;
@@ -1162,6 +1279,10 @@ body.has-sidebar {
     .dash-content {
         padding: 1rem;
     }
+
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 600px) {
@@ -1171,5 +1292,13 @@ body.has-sidebar {
 
     .dash-content {
         padding: 0.75rem;
+    }
+
+    .inv-product-cell {
+        min-width: 180px;
+    }
+
+    .inv-adjust-form {
+        min-width: 150px;
     }
 }
